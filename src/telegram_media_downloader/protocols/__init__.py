@@ -1,9 +1,6 @@
 """Protocol definitions module."""
 
-from .media_filter import MediaFilter
 from .file_namer import FileNamer
+from .media_filter import MediaFilter
 
-__all__ = [
-    'MediaFilter',
-    'FileNamer'
-]
+__all__ = ["MediaFilter", "FileNamer"]

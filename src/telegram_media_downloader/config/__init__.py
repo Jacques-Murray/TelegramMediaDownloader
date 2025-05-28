@@ -2,4 +2,4 @@
 
 from .settings import TelegramConfig
 
-__all__ = ['TelegramConfig']
+__all__ = ["TelegramConfig"]

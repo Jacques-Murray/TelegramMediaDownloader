@@ -1,13 +1,13 @@
 """Core functionality module."""
 
-from .connection import TelegramConnection
 from .channel_manager import ChannelManager
-from .media_downloader import MediaDownloader
+from .connection import TelegramConnection
 from .downloader import TelegramMediaDownloader
+from .media_downloader import MediaDownloader
 
 __all__ = [
-    'TelegramConnection',
-    'ChannelManager',
-    'MediaDownloader',
-    'TelegramMediaDownloader'
+    "TelegramConnection",
+    "ChannelManager",
+    "MediaDownloader",
+    "TelegramMediaDownloader",
 ]
