@@ -8,7 +8,6 @@ from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto
 from telegram_media_downloader import (
     TelegramConfig,
     TelegramMediaDownloader,
-    TimestampFileNamer,
 )
 
 

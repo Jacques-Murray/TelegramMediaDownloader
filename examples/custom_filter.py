@@ -1,7 +1,6 @@
 """Custom filter example - only download videos over 10MB."""
 
 import asyncio
-import os
 
 from telethon.tl.types import MessageMediaDocument
 
@@ -56,7 +55,6 @@ async def main():
         print(f"🎥 Downloaded {session.total_downloaded} large videos")
 
         # Show file details
-        total_size = 0
         for stats in session.channel_stats:
             if stats.downloaded_count > 0:
                 print(f"   {stats.name}: {stats.downloaded_count} videos")
