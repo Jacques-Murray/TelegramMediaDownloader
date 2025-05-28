@@ -52,6 +52,8 @@ Or export directly:
 export TELEGRAM_API_ID=your_api_id
 export TELEGRAM_API_HASH=your_api_hash
 export TELEGRAM_PHONE=+1234567890
+# Optionally set the download directory
+export TELEGRAM_DOWNLOAD_PATH=/path/to/downloads
 ```
 
 ### Usage
@@ -61,6 +63,9 @@ export TELEGRAM_PHONE=+1234567890
 make run
 # or
 uv run python -m telegram_media_downloader.main
+
+# Specify a custom download directory
+uv run python -m telegram_media_downloader.main --download-path /path/to/downloads
 
 # Run with debug logging
 make run-debug

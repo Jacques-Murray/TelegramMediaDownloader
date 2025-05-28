@@ -2,6 +2,8 @@
 
 import asyncio
 import sys
+import argparse
+import os
 from pathlib import Path
 
 from .config.settings import TelegramConfig
@@ -18,6 +20,21 @@ async def main() -> None:
     print("🚀 Telegram Media Downloader")
     print("=" * 50)
     
+    parser = argparse.ArgumentParser(
+        description="Telegram Media Downloader"
+    )
+    parser.add_argument(
+        "--download-path",
+        type=str,
+        default=os.getenv("TELEGRAM_DOWNLOAD_PATH", "telegram_downloads"),
+        help=(
+            "Directory to save downloaded media. "
+            "Default: telegram_downloads or $TELEGRAM_DOWNLOAD_PATH."
+        ),
+    )
+    args, _ = parser.parse_known_args()
+    download_path = args.download_path
+    
     try:
         # Load configuration from environment
         config = TelegramConfig.from_env()
@@ -30,20 +47,30 @@ async def main() -> None:
                 print(f"   - {error}")
             
             print("\n💡 Please set the following environment variables:")
-            print("   - TELEGRAM_API_ID (your API ID from https://my.telegram.org/apps)")
-            print("   - TELEGRAM_API_HASH (your API hash from https://my.telegram.org/apps)")
-            print("   - TELEGRAM_PHONE (your phone number with country code)")
-            print("\n💡 You can also create a .env file with these variables.")
+            print(
+                "   - TELEGRAM_API_ID (your API ID from https://my.telegram.org/apps)"
+            )
+            print(
+                "   - TELEGRAM_API_HASH (your API hash from https://my.telegram.org/apps)"
+            )
+            print(
+                "   - TELEGRAM_PHONE (your phone number with country code)"
+            )
+            print(
+                "\n💡 You can also create a .env file with these variables."
+            )
             
             sys.exit(1)
         
-        print(f"📱 Connecting with phone: {config.phone_number}")
-        print(f"📁 Downloads will be saved to: {Path('telegram_downloads').absolute()}")
+        print("📱 Connecting with phone:")
+        print(config.phone_number)
+        print('📁 Downloads will be saved to:')
+        print(Path(download_path).absolute())
         
         # Initialize and run downloader
         async with TelegramMediaDownloader(
             config=config,
-            download_path='telegram_downloads'
+            download_path=download_path
         ) as downloader:
             
             print("\n🔍 Scanning channels for unread media...")
@@ -53,15 +80,21 @@ async def main() -> None:
             print_session_summary(session)
             
             # Save summary to file
-            summary_file = Path('telegram_downloads') / 'download_summary.txt'
+            summary_file = Path(download_path) / 'download_summary.txt'
             create_download_summary_file(session, str(summary_file))
-            print(f"\n📋 Session summary saved to: {summary_file}")
+            print('\n📋 Session summary saved to:')
+            print(summary_file)
             
             # Final status
             if session.total_downloaded > 0:
-                print(f"\n✅ Successfully downloaded {session.total_downloaded} files!")
+                print(
+                    f"\n✅ Successfully downloaded "
+                    f"{session.total_downloaded} files!"
+                )
             else:
-                print(f"\n ℹ️  No new media files found to download.")
+                print(
+                    "\n ℹ️  No new media files found to download."
+                )
                 
     except KeyboardInterrupt:
         print("\n\n⏹️  Download interrupted by user.")
