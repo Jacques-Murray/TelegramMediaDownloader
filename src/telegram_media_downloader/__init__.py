@@ -33,7 +33,7 @@ from .protocols.file_namer import FileNamer
 
 # Protocol exports
 from .protocols.media_filter import MediaFilter
-from .utils.helpers import print_session_summary
+from .utils.helpers import create_download_summary_file, print_session_summary
 
 # Utility exports
 from .utils.logging import setup_logging
@@ -62,4 +62,5 @@ __all__ = [
     # Utils
     "setup_logging",
     "print_session_summary",
+    "create_download_summary_file",
 ]

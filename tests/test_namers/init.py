@@ -1,1 +1,0 @@
-"""Namer tests."""

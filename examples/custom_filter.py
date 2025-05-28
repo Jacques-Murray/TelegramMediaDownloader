@@ -2,9 +2,10 @@
 
 import asyncio
 
-from telethon.tl.types import MessageMediaDocument
+from telethon.tl.types import MessageMediaDocument  # type: ignore
 
 from telegram_media_downloader import TelegramConfig, TelegramMediaDownloader
+from telegram_media_downloader.protocols.media_filter import TelegramMessage
 
 
 class LargeVideoFilter:
@@ -13,7 +14,7 @@ class LargeVideoFilter:
     def __init__(self, min_size_mb: float = 10.0):
         self.min_size_bytes = int(min_size_mb * 1024 * 1024)
 
-    def should_download(self, message) -> bool:
+    def should_download(self, message: TelegramMessage) -> bool:
         """Check if message contains large video."""
         if not message.media:
             return False
@@ -22,11 +23,13 @@ class LargeVideoFilter:
             document = message.media.document
 
             # Check if it's a video
-            if not (document.mime_type and document.mime_type.startswith("video/")):
+            mime_type = getattr(document, "mime_type", None)
+            if not (mime_type and isinstance(mime_type, str) and mime_type.startswith("video/")):
                 return False
 
             # Check file size
-            if hasattr(document, "size") and document.size >= self.min_size_bytes:
+            size = getattr(document, "size", None)
+            if isinstance(size, int) and size >= self.min_size_bytes:
                 return True
 
         return False
