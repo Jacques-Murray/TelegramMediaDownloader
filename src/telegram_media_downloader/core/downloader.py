@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
+from types import TracebackType
 from typing import Any, Optional
 
 from ..config.settings import TelegramConfig
@@ -12,6 +13,7 @@ from ..models.download_session import DownloadSession
 from ..namers.timestamp_namer import TimestampFileNamer
 from ..protocols.file_namer import FileNamer
 from ..protocols.media_filter import MediaFilter
+from ..utils.logging import get_logger
 from .channel_manager import ChannelManager
 from .connection import TelegramConnection
 from .media_downloader import MediaDownloader
@@ -26,6 +28,7 @@ class TelegramMediaDownloader:
         download_path: str = "downloads",
         media_filter: Optional[MediaFilter] = None,
         file_namer: Optional[FileNamer] = None,
+        fail_fast: bool = False,
     ) -> None:
         """
         Initialize the main downloader.
@@ -35,11 +38,14 @@ class TelegramMediaDownloader:
             download_path: Base path for downloads
             media_filter: Media filtering strategy (defaults to DefaultMediaFilter)
             file_namer: File naming strategy (defaults to TimestampFileNamer)
+            fail_fast: Whether to fail fast on error
         """
         self.config = config
         self.download_path = Path(download_path)
         self.media_filter = media_filter or DefaultMediaFilter()
         self.file_namer = file_namer or TimestampFileNamer()
+        self.logger = get_logger(self.__class__.__name__)
+        self.fail_fast = fail_fast
 
         # Initialize core components
         self.connection = TelegramConnection(config)
@@ -48,14 +54,12 @@ class TelegramMediaDownloader:
             self.connection, self.download_path, self.media_filter, self.file_namer
         )
 
-        self.logger = logging.getLogger(self.__class__.__name__)
-
     async def __aenter__(self) -> "TelegramMediaDownloader":
         """Async context manager entry."""
         await self.connection.connect()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: type, exc_val: Exception, exc_tb: Optional[TracebackType]) -> None:
         """Async context manager exit."""
         await self.connection.disconnect()
 
@@ -72,8 +76,8 @@ class TelegramMediaDownloader:
             DownloadSession with summary information
         """
         start_time = datetime.now()
-        session_errors = []
-        channel_stats = []
+        session_errors: list[str] = []
+        channel_stats: list[ChannelStats] = []
 
         try:
             self.logger.info("Starting download session")
@@ -96,6 +100,9 @@ class TelegramMediaDownloader:
                     total_media += stats.media_count
                     total_downloaded += stats.downloaded_count
 
+                    if self.fail_fast and (stats.has_errors or stats.error_count > 0):
+                        raise RuntimeError(f"Error in channel {getattr(channel, 'title', 'Unknown')}")
+
                 except Exception as e:
                     error_msg = f"Failed to process channel {getattr(channel, 'title', 'Unknown')}: {e}"
                     self.logger.error(error_msg)
@@ -108,6 +115,8 @@ class TelegramMediaDownloader:
                             errors=[error_msg],
                         )
                     )
+                    if self.fail_fast:
+                        break
 
             end_time = datetime.now()
 
@@ -135,13 +144,13 @@ class TelegramMediaDownloader:
                 total_unread=0,
                 total_media=0,
                 total_downloaded=0,
-                channel_stats=channel_stats,
+                channel_stats=list(channel_stats),
                 start_time=start_time,
                 end_time=datetime.now(),
-                errors=session_errors,
+                errors=list(session_errors),
             )
 
-    async def _process_channel(self, channel: Any, mark_as_read: bool) -> ChannelStats:
+    async def _process_channel(self, channel, mark_as_read: bool) -> ChannelStats:
         """
         Process a single channel.
 

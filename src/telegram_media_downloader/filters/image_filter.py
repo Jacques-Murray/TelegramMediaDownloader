@@ -1,14 +1,14 @@
 """Image-only media filter implementation."""
 
-from typing import Any
-
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto
+
+from ..protocols.telegram_message import TelegramMessage
 
 
 class ImageOnlyFilter:
     """Filter that only downloads image files."""
 
-    def should_download(self, message: Any) -> bool:
+    def should_download(self, message: TelegramMessage) -> bool:
         """
         Check if message contains image media.
 

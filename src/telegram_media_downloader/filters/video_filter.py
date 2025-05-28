@@ -1,14 +1,14 @@
 """Video-only media filter implementation."""
 
-from typing import Any
-
 from telethon.tl.types import MessageMediaDocument
+
+from ..protocols.telegram_message import TelegramMessage
 
 
 class VideoOnlyFilter:
     """Filter that only downloads video files."""
 
-    def should_download(self, message: Any) -> bool:
+    def should_download(self, message: TelegramMessage) -> bool:
         """
         Check if message contains video media.
 

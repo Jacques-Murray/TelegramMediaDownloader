@@ -1,7 +1,10 @@
 """Configuration management for Telegram Media Downloader."""
 
 import os
+from pathlib import Path
 from typing import List
+
+import yaml
 
 
 class TelegramConfig:
@@ -31,22 +34,30 @@ class TelegramConfig:
     @classmethod
     def from_env(cls) -> "TelegramConfig":
         """
-        Create configuration from environment variables.
-
-        Expected environment variables:
-        - TELEGRAM_API_ID: API ID as integer
-        - TELEGRAM_API_HASH: API hash as string
-        - TELEGRAM_PHONE: Phone number with country code
-        - TELEGRAM_SESSION: Session name (optional, defaults to 'telegram_session')
-
-        Returns:
-            TelegramConfig instance
+        Create configuration from environment variables or config.yaml if present.
         """
+        config_path = Path("config.yaml")
+        if config_path.exists():
+            return cls.from_yaml(config_path)
         return cls(
             api_id=int(os.getenv("TELEGRAM_API_ID", "0")),
             api_hash=os.getenv("TELEGRAM_API_HASH", ""),
             phone_number=os.getenv("TELEGRAM_PHONE", ""),
             session_name=os.getenv("TELEGRAM_SESSION", "telegram_session"),
+        )
+
+    @classmethod
+    def from_yaml(cls, path: Path) -> "TelegramConfig":
+        """
+        Create configuration from a YAML file.
+        """
+        with open(path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return cls(
+            api_id=int(data.get("api_id", 0)),
+            api_hash=data.get("api_hash", ""),
+            phone_number=data.get("phone_number", ""),
+            session_name=data.get("session_name", "telegram_session"),
         )
 
     def validate(self) -> List[str]:
@@ -56,7 +67,7 @@ class TelegramConfig:
         Returns:
             List of validation error messages
         """
-        errors = []
+        errors: List[str] = []
 
         if not self.api_id or self.api_id == 0:
             errors.append("API_ID is required and must be non-zero")

@@ -1,15 +1,16 @@
 """Channel prefix file naming implementation."""
 
 from pathlib import Path
-from typing import Any
 
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto
+
+from ..protocols.telegram_message import TelegramMessage
 
 
 class ChannelPrefixNamer:
     """File namer that prefixes filenames with channel name."""
 
-    def generate_filename(self, message: Any, channel_name: str) -> str:
+    def generate_filename(self, message: TelegramMessage, channel_name: str) -> str:
         """
         Generate filename with channel name prefix.
 
@@ -64,7 +65,7 @@ class ChannelPrefixNamer:
 
         return safe_name or "Unknown"
 
-    def _get_file_extension(self, message: Any) -> str:
+    def _get_file_extension(self, message: TelegramMessage) -> str:
         """
         Get appropriate file extension for the media.
 

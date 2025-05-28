@@ -2,13 +2,14 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto
 
 from ..models.media_info import MediaInfo
 from ..protocols.file_namer import FileNamer
 from ..protocols.media_filter import MediaFilter
+from ..protocols.telegram_message import TelegramMessage
 from .connection import TelegramConnection
 
 
@@ -41,7 +42,7 @@ class MediaDownloader:
         self.download_path.mkdir(parents=True, exist_ok=True)
 
     async def download_media_from_message(
-        self, message: Any, channel_name: str
+        self, message: TelegramMessage, channel_name: str
     ) -> Optional[MediaInfo]:
         """
         Download media from a single message.
@@ -141,7 +142,7 @@ class MediaDownloader:
 
         return safe_name or "Unknown_Channel"
 
-    def _get_mime_type(self, message: Any) -> Optional[str]:
+    def _get_mime_type(self, message: TelegramMessage) -> Optional[str]:
         """
         Get MIME type from message media.
 

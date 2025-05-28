@@ -1,15 +1,16 @@
 """Timestamp-based file naming implementation."""
 
 from pathlib import Path
-from typing import Any
 
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto
+
+from ..protocols.telegram_message import TelegramMessage
 
 
 class TimestampFileNamer:
     """File namer that uses timestamps and message IDs."""
 
-    def generate_filename(self, message: Any, channel_name: str) -> str:
+    def generate_filename(self, message: TelegramMessage, channel_name: str) -> str:
         """
         Generate filename using timestamp and message ID.
 
@@ -26,7 +27,7 @@ class TimestampFileNamer:
         extension = self._get_file_extension(message)
         return f"{timestamp}_msg{message.id}{extension}"
 
-    def _get_file_extension(self, message: Any) -> str:
+    def _get_file_extension(self, message: TelegramMessage) -> str:
         """
         Get appropriate file extension for the media.
 
