@@ -1,9 +1,10 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from telethon.tl.types import MessageMediaPhoto
 
-from src.telegram_media_downloader.config.settings import TelegramConfig
-from src.telegram_media_downloader.core.downloader import TelegramMediaDownloader
+from telegram_media_downloader.config.settings import TelegramConfig
+from telegram_media_downloader.core.downloader import TelegramMediaDownloader
 
 
 @pytest.fixture
@@ -14,19 +15,23 @@ def config():
 @pytest.mark.asyncio
 async def test_download_all_unread_media_success(config):
     with patch(
-        "src.telegram_media_downloader.core.downloader.TelegramConnection"
+        "telegram_media_downloader.core.downloader.TelegramConnection"
     ) as MockConn, patch(
-        "src.telegram_media_downloader.core.downloader.ChannelManager"
+        "telegram_media_downloader.core.downloader.ChannelManager"
     ) as MockChanMgr, patch(
-        "src.telegram_media_downloader.core.downloader.MediaDownloader"
+        "telegram_media_downloader.core.downloader.MediaDownloader"
     ) as MockMediaDownloader:
         mock_conn = MockConn.return_value
+        mock_conn.connect = AsyncMock()
+        mock_conn.disconnect = AsyncMock()
         mock_chan_mgr = MockChanMgr.return_value
         mock_media_downloader = MockMediaDownloader.return_value
         mock_chan_mgr.get_all_channels = AsyncMock(
             return_value=[MagicMock(title="TestChannel")]
         )
-        mock_chan_mgr.get_unread_messages = AsyncMock(return_value=[MagicMock(id=1)])
+        mock_message = MagicMock(id=1)
+        mock_message.media = MessageMediaPhoto()
+        mock_chan_mgr.get_unread_messages = AsyncMock(return_value=[mock_message])
         mock_media_downloader.download_media_from_message = AsyncMock(return_value=True)
         mock_chan_mgr.mark_messages_as_read = AsyncMock()
         downloader = TelegramMediaDownloader(config=config)
@@ -40,13 +45,15 @@ async def test_download_all_unread_media_success(config):
 @pytest.mark.asyncio
 async def test_download_all_unread_media_error(config):
     with patch(
-        "src.telegram_media_downloader.core.downloader.TelegramConnection"
+        "telegram_media_downloader.core.downloader.TelegramConnection"
     ) as MockConn, patch(
-        "src.telegram_media_downloader.core.downloader.ChannelManager"
+        "telegram_media_downloader.core.downloader.ChannelManager"
     ) as MockChanMgr, patch(
-        "src.telegram_media_downloader.core.downloader.MediaDownloader"
+        "telegram_media_downloader.core.downloader.MediaDownloader"
     ) as MockMediaDownloader:
         mock_conn = MockConn.return_value
+        mock_conn.connect = AsyncMock()
+        mock_conn.disconnect = AsyncMock()
         mock_chan_mgr = MockChanMgr.return_value
         mock_media_downloader = MockMediaDownloader.return_value
         mock_chan_mgr.get_all_channels = AsyncMock(side_effect=Exception("fail"))
@@ -60,19 +67,23 @@ async def test_download_all_unread_media_error(config):
 @pytest.mark.asyncio
 async def test_download_from_specific_channels(config):
     with patch(
-        "src.telegram_media_downloader.core.downloader.TelegramConnection"
+        "telegram_media_downloader.core.downloader.TelegramConnection"
     ) as MockConn, patch(
-        "src.telegram_media_downloader.core.downloader.ChannelManager"
+        "telegram_media_downloader.core.downloader.ChannelManager"
     ) as MockChanMgr, patch(
-        "src.telegram_media_downloader.core.downloader.MediaDownloader"
+        "telegram_media_downloader.core.downloader.MediaDownloader"
     ) as MockMediaDownloader:
         mock_conn = MockConn.return_value
+        mock_conn.connect = AsyncMock()
+        mock_conn.disconnect = AsyncMock()
         mock_chan_mgr = MockChanMgr.return_value
         mock_media_downloader = MockMediaDownloader.return_value
         mock_chan_mgr.get_all_channels = AsyncMock(
             return_value=[MagicMock(title="A"), MagicMock(title="B")]
         )
-        mock_chan_mgr.get_unread_messages = AsyncMock(return_value=[MagicMock(id=1)])
+        mock_message = MagicMock(id=1)
+        mock_message.media = MessageMediaPhoto()
+        mock_chan_mgr.get_unread_messages = AsyncMock(return_value=[mock_message])
         mock_media_downloader.download_media_from_message = AsyncMock(return_value=True)
         mock_chan_mgr.mark_messages_as_read = AsyncMock()
         downloader = TelegramMediaDownloader(config=config)

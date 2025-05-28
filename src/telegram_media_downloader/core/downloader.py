@@ -59,7 +59,9 @@ class TelegramMediaDownloader:
         await self.connection.connect()
         return self
 
-    async def __aexit__(self, exc_type: type, exc_val: Exception, exc_tb: Optional[TracebackType]) -> None:
+    async def __aexit__(
+        self, exc_type: type, exc_val: Exception, exc_tb: Optional[TracebackType]
+    ) -> None:
         """Async context manager exit."""
         await self.connection.disconnect()
 
@@ -101,7 +103,9 @@ class TelegramMediaDownloader:
                     total_downloaded += stats.downloaded_count
 
                     if self.fail_fast and (stats.has_errors or stats.error_count > 0):
-                        raise RuntimeError(f"Error in channel {getattr(channel, 'title', 'Unknown')}")
+                        raise RuntimeError(
+                            f"Error in channel {getattr(channel, 'title', 'Unknown')}"
+                        )
 
                 except Exception as e:
                     error_msg = f"Failed to process channel {getattr(channel, 'title', 'Unknown')}: {e}"

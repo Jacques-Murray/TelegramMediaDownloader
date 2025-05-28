@@ -426,6 +426,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
@@ -438,6 +439,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
     { name = "telethon", specifier = ">=1.24.0" },
 ]
 provides-extras = ["dev"]

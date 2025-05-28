@@ -1,4 +1,4 @@
-from src.telegram_media_downloader.config.settings import TelegramConfig
+from telegram_media_downloader.config.settings import TelegramConfig
 
 
 def test_from_env(monkeypatch):

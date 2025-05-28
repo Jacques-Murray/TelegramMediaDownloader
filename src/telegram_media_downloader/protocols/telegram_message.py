@@ -6,4 +6,4 @@ class TelegramMessage(Protocol):
     id: int
     date: datetime
     media: Any
-    text: str | None 
+    text: str | None
